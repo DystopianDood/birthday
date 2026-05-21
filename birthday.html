@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Base styles */
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: black;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Roboto Mono', monospace;
+        }
+
+        /* Reusable Glassy Button Styling */
+        .glass-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 15px 35px;
+            color: #eeeeee;
+            font-size: 1.2rem;
+            font-family: inherit;
+            border-radius: 12px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: background 0.3s, box-shadow 0.3s, opacity 1.5s ease, transform 1.5s ease;
+            z-index: 10;
+        }
+
+        .glass-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* Initial Sequence Button */
+        #start-btn {
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeMoveIn 1.5s ease-out 2s forwards;
+        }
+
+        /* Letter Reveal Button (Positioned below the heart) */
+        #read-btn {
+            position: absolute;
+            bottom: 12%; 
+            left: 50%;
+            transform: translate(-50%, 30px);
+            opacity: 0;
+            display: none;
+            font-size: 1rem;
+            padding: 12px 30px;
+        }
+
+        #read-btn.show {
+            opacity: 1;
+            transform: translate(-50%, 0);
+        }
+
+        @keyframes fadeMoveIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Container for the heart text */
+        #heart-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: none; 
+        }
+
+        /* Neon Code Text Styles */
+        .neon-text {
+            position: absolute;
+            opacity: 0;
+            transform: translate(-50%, -50%);
+            animation: fadeInText 0.5s forwards, neonShift 4s infinite alternate ease-in-out;
+        }
+
+        /* Center message styling */
+        .center-text {
+            font-weight: 700;
+            font-size: 2.5rem;
+            text-align: center;
+            line-height: 1.5;
+            white-space: nowrap;
+        }
+
+        @keyframes fadeInText {
+            to { opacity: 1; }
+        }
+
+        /* Soft Shifting Neon Glow */
+        @keyframes neonShift {
+            0% {
+                color: #ff8838;
+                text-shadow: 
+                    0 0 15px rgba(255, 106, 0, 0.6), 
+                    0 0 30px rgba(255, 106, 0, 0.4), 
+                    0 0 45px rgba(255, 106, 0, 0.2);
+            }
+            100% {
+                color: #ff5ea7;
+                text-shadow: 
+                    0 0 15px rgba(255, 20, 147, 0.6), 
+                    0 0 30px rgba(255, 20, 147, 0.4), 
+                    0 0 45px rgba(255, 20, 147, 0.2);
+            }
+        }
+
+        /* Full Screen Letter Overlay Box */
+        #letter-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 1s ease;
+            z-index: 20;
+        }
+
+        #letter-modal.open {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Glass Paper Styling for Content */
+        .letter-content {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 600px;
+            max-height: 70vh;
+            overflow-y: auto;
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            color: #e0e0e0;
+            font-size: 1rem;
+            line-height: 1.8;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+            text-align: left;
+        }
+
+        /* Styling inside the letter */
+        .letter-p {
+            margin-bottom: 25px;
+            white-space: pre-line;
+        }
+
+        .letter-p:last-of-type {
+            margin-bottom: 35px;
+        }
+
+        .close-btn-container {
+            text-align: center;
+        }
+
+        .close-btn {
+            font-size: 0.9rem;
+            padding: 8px 20px;
+        }
+
+        .letter-content::-webkit-scrollbar {
+            width: 6px;
+        }
+        .letter-content::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .letter-content::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <button id="start-btn" class="glass-btn">initiate_sequence.exe</button>
+    
+    <div id="heart-container"></div>
+
+    <button id="read-btn" class="glass-btn">open_letter.txt</button>
+
+    <div id="letter-modal">
+        <div class="letter-content">
+            <div class="letter-p">
+                HAPPY BIRTHDAY MY PRETTY GIRL!! You’re 17 now :) It is genuinely amazing to me to see the beautiful and amazing girl you have become. [cite: 1]
+                
+                You’ve genuinely grown up so much that just the number “17” is not able to pinpoint that amount alone. [cite: 2] You’lle never cease to amaze me with how much of a great person you actually are. [cite: 3] No matter what, you have always been there to show not just me, but everyone around you kindness and love. [cite: 4] You have always been a source of love, happiness and comfort. [cite: 5]
+            </div>
+            <div class="letter-p">
+                Not one day have I ever been bored of talking to you. [cite: 6] You’ve gone through the world, and yet you’re still here, waiting to tell me about your day and every single moment I cannot wait for that. [cite: 7] You have borne the weight of the world on your back, yet you still stayed. [cite: 8] You grew into this absolutely beautiful being that won't replace the biggest part of many’s hearts. [cite: 9] 
+                
+                This is a cringy ass quote, but I wanted to write this here because I really want you to know your worth. [cite: 10] You could have the best lookalike for a fake bill, but it would not work for a vending machine unless you have a real bill. [cite: 11] Well, in Singapore at least. I'm that vending machine and you're the real bill baby. [cite: 12] Because right through you I can tell that you are the most genuine and perfect person I have met. [cite: 13] Nothing can ever replace you. Nothing will. [cite: 14]
+            </div>
+            <div class="letter-p">
+                Don't just let this day define you. You have so many more days, months and years ahead of you. [cite: 15] You are an amazing person, so great that everyday should be a celebration just for you. I mean it. [cite: 16] You mean the world to me. You mean so much to me, and I would not want anyone else to ever be that. [cite: 17] 
+                
+                Cherish this day with everything you can, and Happy 17 Baby :) Here's to many years ahead with happiness and love ♥️ [cite: 18]
+            </div>
+            <div class="close-btn-container">
+                <button id="close-btn" class="glass-btn close-btn">close_file.txt</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const btn = document.getElementById('start-btn');
+        const container = document.getElementById('heart-container');
+        const readBtn = document.getElementById('read-btn');
+        const modal = document.getElementById('letter-modal');
+        const closeBtn = document.getElementById('close-btn');
+
+        btn.addEventListener('click', () => {
+            btn.style.display = 'none';
+            container.style.display = 'block';
+            drawHeart();
+        });
+
+        readBtn.addEventListener('click', () => {
+            modal.classList.add('open');
+        });
+
+        closeBtn.addEventListener('click', () => {
+            modal.classList.remove('open');
+        });
+
+        function drawHeart() {
+            const points = [];
+            const steps = 140; 
+
+            for (let i = 0; i < steps; i++) {
+                const t = (i / steps) * Math.PI * 2;
+                const x = 16 * Math.pow(Math.sin(t), 3);
+                const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+                points.push({x, y});
+            }
+
+            const scale = Math.min(window.innerWidth, window.innerHeight) / 45;
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2 - (scale * 5.5); 
+
+            const indices = Array.from({length: steps}, (_, i) => i);
+            indices.sort(() => Math.random() - 0.5);
+
+            indices.forEach((index, i) => {
+                setTimeout(() => {
+                    const pt = points[index];
+                    const span = document.createElement('span');
+                    
+                    span.classList.add('neon-text');
+                    span.textContent = 'S';
+                    span.style.left = `${centerX + pt.x * scale}px`;
+                    span.style.top = `${centerY + pt.y * scale}px`;
+                    span.style.fontSize = `${scale * 1.4}px`; 
+                    
+                    container.appendChild(span);
+                }, i * 35); 
+            });
+
+            const timeToFinishOutline = steps * 35;
+
+            // Render center title
+            setTimeout(() => {
+                const centerMessage = document.createElement('div');
+                centerMessage.classList.add('neon-text', 'center-text');
+                
+                centerMessage.innerHTML = 'Happy<br>Birthday!';
+                centerMessage.style.left = '50%';
+                centerMessage.style.top = `${centerY + (scale * 2.5)}px`;
+                
+                const fontSize = window.innerWidth < 600 ? 1.5 : 2.5; 
+                centerMessage.style.fontSize = `${fontSize}rem`;
+
+                container.appendChild(centerMessage);
+            }, timeToFinishOutline + 500); 
+
+            // UPDATED: Trigger the letter button to fade in exactly 2 seconds after the title drops
+            setTimeout(() => {
+                readBtn.style.display = 'block';
+                setTimeout(() => {
+                    readBtn.classList.add('show');
+                }, 50);
+            }, timeToFinishOutline + 2500); // 500ms title delay + 2000ms wait time
+        }
+    </script>
+</body>
+</html>
